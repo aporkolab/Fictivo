@@ -3,7 +3,6 @@
 [![Build](https://img.shields.io/github/actions/workflow/status/APorkolab/Fictivo/ci.yml?branch=main)](../../actions)
 [![License](https://img.shields.io/badge/license-MIT-informational.svg)](LICENSE)
 [![Issues](https://img.shields.io/github/issues/APorkolab/Fictivo.svg)](../../issues)
-[![Live Demo](https://img.shields.io/badge/live-fictivo.porkolab.hu-success)](https://fictivo.porkolab.hu/)
 
 # Documentation
 
