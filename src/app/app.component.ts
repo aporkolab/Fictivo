@@ -3,6 +3,7 @@ import * as jquery from 'jquery';
 declare var $: any;
 
 @Component({
+  standalone: false,
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
@@ -34,13 +35,6 @@ export class AppComponent {
       // function calculateCenter() {
       //   center = map.getCenter();
       // }
-
-      function loadGoogleMap() {
-        var script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDVWt4rJfibfsEDvcuaChUaZRS5NXey1Cs&v=3.exp&sensor=false&' + 'callback=initialize';
-        document.body.appendChild(script);
-      }
 
       function setCarousel() {
 
@@ -109,7 +103,6 @@ export class AppComponent {
         });
 
         // // Google Map
-        // loadGoogleMap();
 
         // Date Picker
         // const pickerCheckIn = datepicker('#inputCheckIn');

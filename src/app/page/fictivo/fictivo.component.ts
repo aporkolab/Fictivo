@@ -4,6 +4,7 @@ import { HttpClient } from "@angular/common/http";
 import { NotificationService } from 'src/app/service/notification.service';
 
 @Component({
+  standalone: false,
   selector: 'app-fictivo',
   templateUrl: './fictivo.component.html',
   styleUrls: ['./fictivo.component.scss']
