@@ -174,11 +174,11 @@ jobs:
         run: |
           cd "${{ needs.detect-paths.outputs.FRONT_DIR }}"
           npm run build --if-present
-      - name: Optional tests (best-effort)
+      - name: Frontend tests
         if: ${{ steps.check_upgrade.outputs.UPGRADE_NEEDED != 'true' }}
         run: |
           cd "${{ needs.detect-paths.outputs.FRONT_DIR }}"
-          npm run test --if-present -- --watch=false --browsers=ChromeHeadless || echo "Skipping tests."
+          npm run test --if-present -- --watch=false --browsers=ChromeHeadless
 
   # =============== TOOL: Manual Angular Full Upgrade PR ===============
   upgrade-angular-loop:
