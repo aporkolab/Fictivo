@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
+import { HeadbarComponent } from './common/headbar/headbar.component';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -9,7 +10,8 @@ describe('AppComponent', () => {
         RouterTestingModule
       ],
       declarations: [
-        AppComponent
+        AppComponent,
+        HeadbarComponent
       ],
     }).compileComponents();
   });
@@ -26,10 +28,11 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('fictivo');
   });
 
-  it('should render title', () => {
+  it('should render navigation and the routed content outlet', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('fictivo app is running!');
+    expect(compiled.querySelector('nav a[href="/fictivo"]')?.textContent).toContain('Fictivo');
+    expect(compiled.querySelector('router-outlet')).not.toBeNull();
   });
 });
