@@ -67,7 +67,7 @@ jobs:
             hit="$(find . -maxdepth 3 -type f -name package.json | grep -Ev '^\.\/(node_modules|frontend|web|dist|build)\/' | head -n1 || true)"
             if [ -n "$hit" ]; then
               d="$(dirname "$hit" | sed 's|^\./||')"
-              if [ ! -f "$d/pom.xml" ]; then NODE_DIR="$d"; fi
+              if [ ! -f "$d/pom.xml" ] && [ ! -f "$d/angular.json" ]; then NODE_DIR="$d"; fi
             fi
           fi
 
@@ -178,7 +178,7 @@ jobs:
         if: ${{ steps.check_upgrade.outputs.UPGRADE_NEEDED != 'true' }}
         run: |
           cd "${{ needs.detect-paths.outputs.FRONT_DIR }}"
-          npm run test --if-present -- --watch=false --browsers=ChromeHeadless --no-sandbox || echo "Skipping tests."
+          npm run test --if-present -- --watch=false --browsers=ChromeHeadless || echo "Skipping tests."
 
   # =============== TOOL: Manual Angular Full Upgrade PR ===============
   upgrade-angular-loop:
