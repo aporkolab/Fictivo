@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter } from '@angular/router';
 
 import { HeadbarComponent } from './headbar.component';
 
@@ -9,8 +9,8 @@ describe('HeadbarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ RouterTestingModule ],
-      declarations: [ HeadbarComponent ]
+      imports: [HeadbarComponent],
+      providers: [provideRouter([])],
     })
     .compileComponents();
 
@@ -21,5 +21,10 @@ describe('HeadbarComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('links to every page', () => {
+    const links = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll<HTMLAnchorElement>('a.nav-link'));
+    expect(links.map(link => link.getAttribute('href'))).toEqual(['/', '/fictivo', '/contact']);
   });
 });

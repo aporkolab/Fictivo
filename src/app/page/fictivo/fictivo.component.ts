@@ -1,175 +1,60 @@
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { finalize } from 'rxjs';
 
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from "@angular/common/http";
-import { NotificationService } from 'src/app/service/notification.service';
+import { GeneratedName } from '../../model/generated-name';
+import { Gender, LANGUAGES, Language, MAX_NAMES, RANK_OPTIONS, RankCategory, RankPosition } from '../../model/name-options';
+import { NameGenerateService, generateNames } from '../../service/name-generate.service';
+import { NotificationService } from '../../service/notification.service';
 
 @Component({
-  standalone: false,
   selector: 'app-fictivo',
+  imports: [ReactiveFormsModule],
   templateUrl: './fictivo.component.html',
-  styleUrls: ['./fictivo.component.scss']
+  styleUrls: ['./fictivo.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FictivoComponent implements OnInit {
-  selectedLanguage = '';
-  gender = '';
-  rank = '';
-  numberOfNames!: number;
-  numberOfElement = '';
-  elements = 0;
-  resultNames: any[] = [];
-  givenNamesSource: any[] = [];
-  surnamesSource: any[] = [];
-  ranksSource: any[] = [];
-  languageCodes: string[] = [
-    "american",
-    "argentinian",
-    "australian",
-    "brazilian",
-    "british",
-    "bulgarian",
-    "canadian",
-    "chinese",
-    "danish",
-    "finnish",
-    "french",
-    "german",
-    "hungarian",
-    "kazakh",
-    "mexican",
-    "norwegian",
-    "polish",
-    "portuguese",
-    "russian",
-    "spanish",
-    "swedish",
-    "turkish",
-    "ukranian",
-  ]
+export class FictivoComponent {
+  private readonly nameGenerator = inject(NameGenerateService);
+  private readonly notification = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  constructor(private httpClient: HttpClient, public notification: NotificationService) {
+  readonly languages = LANGUAGES;
+  readonly rankOptions = RANK_OPTIONS;
+  readonly maxNames = MAX_NAMES;
 
+  readonly form = new FormGroup({
+    language: new FormControl<Language | ''>('', { nonNullable: true, validators: Validators.required }),
+    numberOfNames: new FormControl<number | null>(null, [Validators.required, Validators.min(1), Validators.max(MAX_NAMES)]),
+    gender: new FormControl<Gender | ''>('', { nonNullable: true, validators: Validators.required }),
+    nameElements: new FormControl<'1' | '2' | ''>('', { nonNullable: true, validators: Validators.required }),
+    rank: new FormControl<RankCategory | ''>('', { nonNullable: true, validators: Validators.required }),
+  });
+
+  readonly resultNames = signal<GeneratedName[]>([]);
+  readonly rankPosition = signal<RankPosition>('suffix');
+  readonly loading = signal(false);
+
+  generateNames(): void {
+    const { language, numberOfNames, gender, nameElements, rank } = this.form.getRawValue();
+    if (this.form.invalid || !language || !gender || !rank || numberOfNames === null) {
+      return;
+    }
+
+    this.loading.set(true);
+    this.nameGenerator.loadSources(language, gender).pipe(
+      finalize(() => this.loading.set(false)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: sources => {
+        this.rankPosition.set(RANK_OPTIONS.find(option => option.value === rank)?.position ?? 'suffix');
+        this.resultNames.set(generateNames(sources, { rank, count: numberOfNames, nameElements: Number(nameElements) }));
+      },
+      error: () => {
+        this.resultNames.set([]);
+        this.notification.showError('The name lists could not be loaded. Please try again later.', 'Generation failed');
+      },
+    });
   }
-
-  ngOnInit(): void {
-
-  }
-
-  OnChange(string: string) {
-    this.elements = Number(string);
-  }
-
-
-
-
-  async generateName(language: string, gender: string, rank: string, numberOfNames: number, numberOfnameElement: number) {
-    let allGivenNameInThatLanguage: any[] = [];
-    let allsurnameInThatLanguage: any[] = [];
-    let randomGivenNameElement;
-    let randomsurnameElement;
-    let allRank: any[] = [];
-    let randomRank;
-
-    this.resultNames.length = 0;
-    console.log(numberOfnameElement);
-
-    this.httpClient.get(`../../../assets/names/${language}/${gender}.names`, { responseType: 'text' as 'json' }).subscribe(data => {
-      const JSONGivennameData = JSON.stringify(data);
-      this.givenNamesSource = JSONGivennameData.split('\\n').slice(2);
-    })
-
-    this.httpClient.get(`../../../assets/names/ranks.json`).subscribe(data => {
-      const JSONrank = (JSON.stringify(data));
-      const rankJSON = JSON.parse(JSONrank);
-      for (const prop in rankJSON) {
-        allRank.push(rankJSON[prop])
-      }
-
-      console.log(allRank);
-
-
-      switch (rank) {
-        case 'education':
-          this.ranksSource = allRank.filter(item => item.domain === rank).map(item => item.nameFragment);
-          break;
-        case 'HUN-education':
-          this.ranksSource = allRank.filter(item => item.domain === rank).map(item => item.inHungarian);
-          break;
-        case 'military':
-          this.ranksSource = allRank.filter(item => item.domain === rank).map(item => item.nameFragment);
-          break;
-        case 'military-abb':
-          this.ranksSource = allRank.filter(item => item.domain === 'military').map(item => item.shortFormENG);
-          break;
-        case 'HUN-military':
-          this.ranksSource = allRank.filter(item => item.domain === 'military').map(item => item.inHungarian);
-          break;
-        case 'HUN-military-abb':
-          this.ranksSource = allRank.filter(item => item.domain === 'military').map(item => item.shortFormHUN);
-          break;
-        case 'HUN-police':
-          this.ranksSource = allRank.filter(item => item.domain === 'military' && item.inHungarian !== "közkatona" && item.inHungarian !== "őrvezető" && item.inHungarian !== "tizedes" && item.inHungarian !== "szakaszvezető").map(item => 'r. ' + item.inHungarian);
-          break;
-        case 'HUN-police-abb':
-          this.ranksSource = allRank.filter(item => item.domain === 'military' && item.shortFormHUN !== "kk." && item.shortFormHUN !== "őrv." && item.shortFormHUN !== "tiz." && item.shortFormHUN !== "szkv.").map(item => 'r. ' + item.shortFormHUN);
-          break;
-        case 'HUN-fireman':
-          this.ranksSource = allRank.filter(item => item.domain === 'military' && item.inHungarian !== "közkatona" && item.inHungarian !== "őrvezető" && item.inHungarian !== "tizedes" && item.inHungarian !== "szakaszvezető").map(item => 'tű. ' + item.inHungarian);
-          break;
-        case 'HUN-fireman-abb':
-          this.ranksSource = allRank.filter(item => item.domain === 'military' && item.shortFormHUN !== "kk." && item.shortFormHUN !== "őrv." && item.shortFormHUN !== "tiz." && item.shortFormHUN !== "szkv.").map(item => 'tű. ' + item.shortFormHUN);
-          break;
-        case 'SS-military':
-          this.ranksSource = allRank.filter(item => item.domain === rank).map(item => item.nameFragment);
-          break;
-        case 'civilian':
-          this.ranksSource = allRank.filter(item => item.domain === rank).map(item => item.nameFragment);
-          break;
-        case 'HUN-civilian':
-          this.ranksSource = allRank.filter(item => item.domain === 'civilian').map(item => item.inHungarian);
-          break;
-        case 'artist':
-          this.ranksSource = [];
-          break;
-
-        default:
-          this.ranksSource = [];
-          break;
-      }
-
-      console.log('rank:', rank, this.ranksSource);
-    })
-
-
-
-    this.httpClient.get(`../../../assets/names/${language}/sur.names`, { responseType: 'text' as 'json' }).subscribe(data => {
-      const JSONSurnameData = JSON.stringify(data);
-      this.surnamesSource = JSONSurnameData.split('\\n').slice(2);
-
-      for (let i = 0; i < numberOfNames; i++) {
-        if (numberOfnameElement > 1) {
-          randomRank = this.ranksSource[Math.floor(Math.random() * this.ranksSource.length)];
-          randomGivenNameElement = this.givenNamesSource[Math.floor(Math.random() * this.givenNamesSource.length)];
-          randomsurnameElement = this.surnamesSource[Math.floor(Math.random() * this.surnamesSource.length)];
-          this.resultNames.push({ rank: randomRank, randomGivenNameElement, randomsurnameElement })
-        } else {
-          const randomNum = Math.floor((Math.random() * 100) + 1);
-          randomRank = this.ranksSource[Math.floor(Math.random() * this.ranksSource.length)];
-
-          if (randomNum % 2 == 0) {
-            randomGivenNameElement = this.givenNamesSource[Math.floor(Math.random() * this.givenNamesSource.length)];
-            this.resultNames.push({ rank: randomRank, randomGivenNameElement })
-          } else {
-            randomsurnameElement = this.surnamesSource[Math.floor(Math.random() * this.surnamesSource.length)];
-            this.resultNames.push({ rank: randomRank, randomsurnameElement: randomsurnameElement })
-          }
-        }
-        // randomRank = this.ranksSource[Math.floor(Math.random() * this.ranksSource.length)];
-        // randomGivenNameElement = this.givenNamesSource[Math.floor(Math.random() * this.givenNamesSource.length)];
-        // randomsurnameElement = this.surnamesSource[Math.floor(Math.random() * this.surnamesSource.length)];
-      }
-      console.log(this.resultNames);
-    })
-    this.resultNames.length = 0;
-  }
-
 }

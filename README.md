@@ -37,7 +37,7 @@ There is no need for preparations before running. Just enjoy the random names! :
 
 ## **3. Version history**
 
-Technologies used: Angular 14 and Bootstrap 5, other NPM libraries (see _package.json_ for the exact list).
+Technologies used: Angular 22 (standalone components, signals, `@angular/build` application builder), TypeScript 6, RxJS 7, Bootstrap 5, Vitest 5 for unit tests (see _package.json_ for the exact list).
 
 ### v.1.0.0 (2022-11-17)
 
@@ -85,38 +85,38 @@ Technologies used: Angular 14 and Bootstrap 5, other NPM libraries (see _package
 
 ## **4. Install the application**
 
-1.  If you do not have the Git version control software installed, download and install the version for your operating system from [https://git-scm.com](https://git-scm.com/).
-2.  If you do not have the NodeJS runtime environment installed, download and install the version marked "LTS" from [https://nodejs.org/en/](https://nodejs.org/en/).
-3.  If you do not have the Angular framework installed on your system, do so by issuing the `npm i -g @angular/cli` command in PowerShell.
-4.  clone the contents of the relevant GitHub repository. So in PowerShell, issue the following command:
+Prerequisites: [Git](https://git-scm.com/) and [Node.js](https://nodejs.org/en/) `^22.22.3`, `^24.15.0` or `>=26` (npm comes with it). A global Angular CLI is not needed; the project-local one is used through the npm scripts.
+
+1.  Clone the repository:
 
     `git clone https://github.com/APorkolab/Fictivo.git`
 
-5.  Install the application dependencies: - In the terminal, go to the /backend folder (`cd backend`) and run `npm i`.
+2.  Install the dependencies in the project folder:
 
-    - frontend
+    `npm ci`
 
-      - On the terminal, run `npm i`.\*
+3.  Build the production bundle:
 
-6.1. For manual installation:
+    `npm run build`
 
-- In the terminal, issue the `ng build` command.
-- The contents of the /dist/frontend folder must be copied to the webserver if you want to deploy it.
-
-OR
-
-6.2. For automatic installation:
-
-- In the terminal, run the `npm run build` command.
-- It is important to install using only one of the methods.
+    The output is written to `dist/fictivo`; copy its contents to any static web server if you want to deploy it.
 
 ## **5. Configure the application**
 
-- There is no need to configure the application because there is no backend in it.
+- There is no need to configure the application because there is no backend in it, and it does not read any environment variables.
 
-## **6. Start the application**
+## **6. Start, test and develop the application**
 
-- The application can be started with the `npm start` command.
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Development server with live reload on http://localhost:4200 |
+| `npm run build` | Production build into `dist/fictivo` |
+| `npm start` | Serves the production build (`dist/fictivo`) with `serve`; run `npm run build` first. This is also what the `Procfile` uses. |
+| `npm test` | Unit tests (Vitest) in watch mode |
+| `npm run test:ci` | Unit tests once, as in CI |
+| `npm run typecheck` | Strict TypeScript check of the application and the tests |
+
+CI (`.github/workflows/ci.yml`) runs the type check, the production build and the unit tests on every push and pull request.
 
 ## **7. A special thanks to...**
 
@@ -168,7 +168,7 @@ A futtatás előtt nincs szükség előkészületekre. Csak élvezd a véletlens
 
 ## **3. Verziótörténet**
 
-Használt technológiák: Angular 14 és Bootstrap 5, egyéb NPM könyvtárak (a pontos listát lásd a _package.json_-ban).
+Használt technológiák: Angular 22 (standalone komponensek, signalok, `@angular/build` application builder), TypeScript 6, RxJS 7, Bootstrap 5, a unit tesztekhez Vitest 5 (a pontos listát lásd a _package.json_-ban).
 
 ### v.1.0.0 (2022-11-17)
 
@@ -216,34 +216,38 @@ Használt technológiák: Angular 14 és Bootstrap 5, egyéb NPM könyvtárak (a
 
 ## **4. Az alkalmazás telepítése**
 
-1.  Ha nincs telepítve a Git verziókezelő szoftver, töltsd le és telepítsd az operációs rendszerednek megfelelő verziót a [https://git-scm.com](https://git-scm.com/) oldalról.
-2.  Ha nincs telepítve a NodeJS futtatókörnyezet, töltsd le és telepítsd az [https://nodejs.org/en/](https://nodejs.org/en/) oldalról az "LTS" jelzésű verziót.
-3.  Ha nincs telepítve a rendszeredre az Angular keretrendszer, akkor a PowerShellben az `npm i -g @angular/cli` parancs kiadásával tedd ezt meg.
-4.  Klónozd a vonatkozó GitHub tároló tartalmát. Tehát a PowerShellben add ki a következő parancsot:
+Előfeltételek: [Git](https://git-scm.com/) és [Node.js](https://nodejs.org/en/) `^22.22.3`, `^24.15.0` vagy `>=26` (az npm vele együtt érkezik). Globális Angular CLI nem kell, az npm scriptek a projekt saját CLI-jét használják.
 
-    ` git clone https://github.com/APorkolab/Fictivo.git`
+1.  Klónozd a tárolót:
 
-5.  Telepítse az alkalmazás függőségeit: - A terminálon futtasd az `npm i` parancsot.
+    `git clone https://github.com/APorkolab/Fictivo.git`
 
-6.1. Kézi telepítéshez:
+2.  Telepítsd a függőségeket a projekt mappájában:
 
-- A terminálon add ki az `ng build` parancsot.
-- A /dist/frontend mappa tartalmát a webszerverre kell másolni, ha telepíteni akarjuk.
+    `npm ci`
 
-VAGY
+3.  Készítsd el az éles buildet:
 
-6.2. Automatikus telepítés esetén:
+    `npm run build`
 
-- A terminálban futtasd az `npm run build` parancsot.
-- Fontos, hogy csak az egyik módszerrel telepíts.
+    Az eredmény a `dist/fictivo` mappába kerül; telepítéshez ennek tartalmát kell bármilyen statikus webszerverre másolni.
 
 ## **5. Az alkalmazás konfigurálása**
 
-- Nincs szükség az alkalmazás konfigurálására, mivel nincs benne backend.
+- Nincs szükség az alkalmazás konfigurálására, mivel nincs benne backend, és környezeti változókat sem olvas.
 
-## **6. Az alkalmazás elindítása**
+## **6. Az alkalmazás indítása, tesztelése és fejlesztése**
 
-- Az alkalmazás az `npm start` paranccsal.
+| Parancs | Mire való |
+|---|---|
+| `npm run dev` | Fejlesztői szerver élő újratöltéssel a http://localhost:4200 címen |
+| `npm run build` | Éles build a `dist/fictivo` mappába |
+| `npm start` | Az éles build (`dist/fictivo`) kiszolgálása a `serve` csomaggal; előtte futtasd az `npm run build`-et. A `Procfile` is ezt használja. |
+| `npm test` | Unit tesztek (Vitest) figyelő módban |
+| `npm run test:ci` | Unit tesztek egyszeri futtatása, ahogy a CI is futtatja |
+| `npm run typecheck` | Szigorú TypeScript-ellenőrzés az alkalmazásra és a tesztekre |
+
+A CI (`.github/workflows/ci.yml`) minden push és pull request esetén lefuttatja a típusellenőrzést, az éles buildet és a unit teszteket.
 
 ## **7. Külön köszönet...**
 

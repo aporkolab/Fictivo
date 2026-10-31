@@ -1,14 +1,13 @@
-export class Rank {
-	[k: string]: any;
-	id: number = 0;
-	nameFragment: string = '';
-	gender: string = '';
-	rank: boolean = false;
-	domain: string = '';
-	nationality: string = '';
-	rankEnglish: string = '';
-	rankHungarian: string = '';
-	occupation: boolean = false;
-	occupationEnglish: string = '';
-	occupationHungarian: string = '';
+/** One entry of `assets/names/ranks.json`. */
+export interface Rank {
+  id: number;
+  nameFragment: string;
+  inHungarian: string;
+  shortFormHUN: string;
+  shortFormENG: string;
+  gender: string;
+  rank: boolean;
+  domain: string;
+  nationality: string;
+  occupation: boolean;
 }

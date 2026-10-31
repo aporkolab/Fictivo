@@ -1,16 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
-  standalone: false,
   selector: 'app-headbar',
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './headbar.component.html',
-  styleUrls: ['./headbar.component.scss']
+  styleUrls: ['./headbar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HeadbarComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
-}
+export class HeadbarComponent {}
