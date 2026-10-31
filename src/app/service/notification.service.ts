@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
-import { ToastService, ToastOptions } from '../service/toast.service';
+import { Injectable, inject } from '@angular/core';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService {
-  constructor(private toastr: ToastService) { }
+  private readonly toastr = inject(ToastService);
 
   showSuccess(message: string, title: string) {
     this.toastr.success(message, title);
