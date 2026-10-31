@@ -3,23 +3,26 @@
 		<div class="container ie-h-align-center-fix">
 			<div class="row">
 				<div class="col-xs-12 ml-auto mr-auto ie-container-width-fix">
-					<form action="index.html" method="get" class="tm-search-form tm-section-pad-2">
+					<form [formGroup]="form" (ngSubmit)="generateNames()" class="tm-search-form tm-section-pad-2">
 						<div class="form-row tm-search-form-row">
 							<div class="form-group tm-form-element tm-form-element-100">
-								<select [(ngModel)]="selectedLanguage" name="selectedLanguage" class="form-control tm-select"
-									id="selectedLanguage">
+								<select formControlName="language" class="form-control tm-select" id="selectedLanguage"
+									aria-label="Language of the name">
 									<option value="">Language of the name</option>
-									<option *ngFor="let item of this.languageCodes">{{item}}</option>
+									@for (item of languages; track item) {
+										<option [value]="item">{{item}}</option>
+									}
 								</select>
 								<i class="fa fa-2x fa-user tm-form-element-icon"></i>
 							</div>
 							<div class="form-group tm-form-element tm-form-element-50">
 								<i class="fa fa-calendar fa-2x tm-form-element-icon"></i>
-								<input [(ngModel)]="numberOfNames" name="numberOfNames" type="number" class="form-control"
-									id="numberOfNames" min="1" max="10" placeholder="How many names should be generated? (max. 10 names)">
+								<input formControlName="numberOfNames" type="number" class="form-control" id="numberOfNames" min="1"
+									[max]="maxNames" placeholder="How many names should be generated? (max. 10 names)"
+									aria-label="Number of names">
 							</div>
 							<div class="form-group tm-form-element tm-form-element-50">
-								<select [(ngModel)]="gender" name="gender" class="form-control tm-select" id="gender">
+								<select formControlName="gender" class="form-control tm-select" id="gender" aria-label="Gender">
 									<option value="">Gender</option>
 									<option value="male">Male</option>
 									<option value="female">Female</option>
@@ -30,49 +33,29 @@
 						</div>
 						<div class="form-row tm-search-form-row">
 							<div class="form-group tm-form-element tm-form-element-50">
-								<select [(ngModel)]="numberOfElement" name="numberOfElement" class="form-control tm-select"
-									id="numberOfElement" (ngModelChange)="OnChange(numberOfElement)">
+								<select formControlName="nameElements" class="form-control tm-select" id="numberOfElement"
+									aria-label="Number of name elements">
 									<option value="">Number of name element</option>
 									<option value="1">1 element</option>
 									<option value="2">2 elements</option>
 								</select>
 								<i class="fa fa-2x fa-user tm-form-element-icon"></i>
 							</div>
-							<!-- <div class="form-group tm-form-element tm-form-element-2">
-								<i class="fa fa-map-marker fa-2x tm-form-element-icon" hidden></i>
-								<input name="city" type="text" class="form-control" id="inputCity"
-									placeholder="Type your destination..." hidden>
-							</div>
-							<div class="form-group tm-form-element tm-form-element-2">
-								<i class="fa fa-map-marker fa-2x tm-form-element-icon" hidden></i>
-								<input name="city" type="text" class="form-control" id="inputCity"
-									placeholder="Type your destination..." hidden>
-							</div> -->
 							<div class="form-group tm-form-element tm-form-element-100">
-								<select [(ngModel)]="rank" name="rank" class="form-control tm-select" id="rank">
+								<select formControlName="rank" class="form-control tm-select" id="rank"
+									aria-label="Profession of the character">
 									<option value="">Profession of the character</option>
-									<option value="education">Education</option>
-									<option value="HUN-education">Hungarian education</option>
-									<option value="HUN-police">Hungarian police officer</option>
-									<option value="HUN-police-abb">Hungarian police officer with abbreviated form</option>
-									<option value="HUN-fireman">Hungarian fireman officer</option>
-									<option value="HUN-fireman-abb">Hungarian fireman officer with abbreviated form</option>
-									<option value="HUN-military">Hungarian military officer</option>
-									<option value="HUN-military-abb">Hungarian military officer with abbreviated form</option>
-									<option value="military">USA military</option>
-									<option value="military-abb">USA military with abbreviated form</option>
-									<option value="SS-military">SS-military</option>
-									<option value="civilian">Civilian</option>
-									<option value="HUN-civilian">Hungarian civilian</option>
-									<option value="artist">Artist (no rank)</option>
+									@for (option of rankOptions; track option.value) {
+										<option [value]="option.value">{{option.label}}</option>
+									}
 								</select>
 								<i class="fa fa-2x fa-bed tm-form-element-icon"></i>
 							</div>
 							<div class="form-group tm-form-element tm-form-element-100">
-								<button *ngIf="selectedLanguage && gender && rank && numberOfNames && numberOfElement" type="submit"
-									class="btn btn-primary tm-btn-search"
-									(click)="generateName(selectedLanguage, gender, rank, numberOfNames, elements)">I
-									WANT MY NAMES!</button>
+								@if (form.valid) {
+									<button type="submit" class="btn btn-primary tm-btn-search" [disabled]="loading()">I
+										WANT MY NAMES!</button>
+								}
 							</div>
 						</div>
 						<div class="form-row clearfix pl-2 pr-2 tm-fx-col-xs">
@@ -95,15 +78,14 @@
 		</div>
 	</div>
 </div>
-<div class="col-12 tm-article text-center"
-	*ngIf="rank==='education' ||rank==='HUN-education' ||rank==='HUN-police' ||rank==='HUN-police-abb' ||rank==='HUN-fireman' ||rank==='HUN-fireman-abb' ||rank==='HUN-military' ||rank==='HUN-military-abb' ||rank==='civilian' ||rank==='HUN-civilian' ">
-	<div *ngFor="let option of resultNames" class="tm-color-primary tm-article-title-1">
-		{{option.randomGivenNameElement}}
-		{{option.randomsurnameElement}} {{option.rank}}</div>
-</div>
-<div class="col-12 tm-article text-center"
-	*ngIf="rank==='military' || rank==='military-abb' || rank==='SS-military'|| rank==='artist'">
-	<div *ngFor="let option of resultNames" class="tm-color-primary tm-article-title-1">
-		{{option.rank}} {{option.randomGivenNameElement}}
-		{{option.randomsurnameElement}}</div>
+<div class="col-12 tm-article text-center">
+	@for (option of resultNames(); track $index) {
+		<div class="tm-color-primary tm-article-title-1">
+			@if (rankPosition() === 'prefix') {
+				{{option.rank}} {{option.givenName}} {{option.surname}}
+			} @else {
+				{{option.givenName}} {{option.surname}} {{option.rank}}
+			}
+		</div>
+	}
 </div>
